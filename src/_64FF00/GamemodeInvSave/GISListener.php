@@ -84,15 +84,11 @@ class GISListener implements Listener
                     {
                         foreach($itemsList as $slot => $itemInfo)
                         {   
-                            $tmp = explode(",", $itemInfo);
+                            $tmp = explode(":", $itemInfo);
                             
-                            $id = (int) $tmp[0];
-                            $damage = (int) $tmp[1];
-                            $count = (int) $tmp[2];
+                            $item = Item::get($tmp[0], $tmp[1], $tmp[2]);
                             
-                            $item = Item::get($id, $damage, $count);
-                            
-                            $player->getInventory()->setItem($slot, $item);
+                            $player->getInventory()->addItem($item);
                         }
                         
                         $config->setNested("items", []);
@@ -119,14 +115,14 @@ class GISListener implements Listener
                     $damage = $item->getDamage();
                     $count = $item->getCount();
                     
-                    if(!isset($items[$slot])) $items[$slot] = "$id,$damage,0";
+                    if(!isset($items[$slot])) $items[$slot] = "$id:$damage:0";
                     
                     if($id == $armor["helmet"] or $id == $armor["chestplate"] or $id == $armor["leggings"] or $id == $armor["boots"])
                     {
                         --$count;
                     }
                     
-                    $items[$slot] = "$id,$damage,$count";
+                    $items[$slot] = "$id:$damage:$count";
                 }
                 
                 $config->setNested("armor", $armor);
