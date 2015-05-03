@@ -34,7 +34,7 @@ class GISListener implements Listener
     public function onGameModeChange(PlayerGameModeChangeEvent $event)
     {
         $player = $event->getPlayer();
-        $inventory = $player->getInventory();
+        
         $config = $this->plugin->getPlayerConfig($player);
         
         $newGamemode = $event->getNewGamemode();
@@ -45,6 +45,8 @@ class GISListener implements Listener
                 
                 if($this->plugin->configExists($player))
                 {
+                    $player->getInventory()->clearAll();
+                    
                     $armorList = $config->getNested("armor");
                     $itemsList = $config->getNested("items");
                     
@@ -54,27 +56,12 @@ class GISListener implements Listener
                         {
                             $item = Item::get($id, 0, 1);
                                     
-                            if($this->plugin->isHelmet(clone $item))
-                            {
-                                $inventory->setHelmet(clone $item);
-                            }
+                            if($this->plugin->isHelmet(clone $item)) $player->getInventory()->setHelmet(clone $item);
+                            if($this->plugin->isChestplate(clone $item)) $player->getInventory()->setChestplate(clone $item);
+                            if($this->plugin->isLeggings(clone $item)) $player->getInventory()->setLeggings(clone $item);
+                            if($this->plugin->isBoots(clone $item)) $player->getInventory()->setBoots(clone $item);
                             
-                            if($this->plugin->isChestplate(clone $item))
-                            {
-                                $inventory->setChestplate(clone $item);
-                            }
-                            
-                            if($this->plugin->isLeggings(clone $item))
-                            {
-                                $inventory->setLeggings(clone $item);
-                            }
-                            
-                            if($this->plugin->isBoots(clone $item))
-                            {
-                                $inventory->setBoots(clone $item);
-                            }
-                            
-                            $inventory->sendArmorContents($player);
+                            $player->getInventory()->sendArmorContents($player);
                         }
                         
                         $config->setNested("armor", []);
@@ -83,12 +70,17 @@ class GISListener implements Listener
                     if(!empty($itemsList))
                     {
                         foreach($itemsList as $slot => $itemInfo)
-                        {   
+                        {      
                             $tmp = explode(":", $itemInfo);
                             
-                            $item = Item::get($tmp[0], $tmp[1], $tmp[2]);
+                            $id = (int) $tmp[0];
+                            $damage = (int) $tmp[1];
+                            $count = (int) $tmp[2];
+
+                            $item = Item::get($id, $damage, $count);
                             
-                            $player->getInventory()->addItem($item);
+                            // ...
+                            $player->getInventory()->addItem(clone $item);
                         }
                         
                         $config->setNested("items", []);
@@ -104,12 +96,12 @@ class GISListener implements Listener
                 $armor = [];
                 $items = [];
                 
-                $armor["helmet"] = $inventory->getHelmet()->getId();
-                $armor["chestplate"] = $inventory->getChestplate()->getId();
-                $armor["leggings"] = $inventory->getLeggings()->getId();
-                $armor["boots"] = $inventory->getBoots()->getId();
+                $armor["helmet"] = $player->getInventory()->getHelmet()->getId();
+                $armor["chestplate"] = $player->getInventory()->getChestplate()->getId();
+                $armor["leggings"] = $player->getInventory()->getLeggings()->getId();
+                $armor["boots"] = $player->getInventory()->getBoots()->getId();
                 
-                foreach($inventory->getContents() as $slot => $item)
+                foreach($player->getInventory()->getContents() as $slot => $item)
                 {
                     $id = $item->getId();
                     $damage = $item->getDamage();
@@ -117,10 +109,13 @@ class GISListener implements Listener
                     
                     if(!isset($items[$slot])) $items[$slot] = "$id:$damage:0";
                     
-                    if($id == $armor["helmet"] or $id == $armor["chestplate"] or $id == $armor["leggings"] or $id == $armor["boots"])
+                    if($slot > $player->getInventory()->getSize())
                     {
-                        --$count;
-                    }
+                        if($id == $armor["helmet"] or $id == $armor["chestplate"] or $id == $armor["leggings"] or $id == $armor["boots"])
+                        {
+                            --$count;
+                        }
+                    }                    
                     
                     $items[$slot] = "$id:$damage:$count";
                 }
