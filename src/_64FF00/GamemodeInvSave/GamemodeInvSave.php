@@ -35,12 +35,20 @@ class GamemodeInvSave extends PluginBase
     public function onDisable()
     {
     }
-    
+
+    /**
+     * @param Player $player
+     * @return bool
+     */
     public function configExists(Player $player)
     {
         return file_exists($this->getDataFolder() . "players/" . strtolower($player->getName()) . ".yml");
     }
-    
+
+    /**
+     * @param Player $player
+     * @return Config
+     */
     public function getPlayerConfig(Player $player)
     {
         if(!(file_exists($this->getDataFolder() . "players/" . strtolower($player->getName()) . ".yml")))
@@ -57,28 +65,44 @@ class GamemodeInvSave extends PluginBase
         return new Config($this->getDataFolder() . "players/" . strtolower($player->getName()) . ".yml", Config::YAML, array(
         ));
     }
-    
+
+    /**
+     * @param Item $item
+     * @return bool
+     */
     public function isHelmet(Item $item)
     {
         $id = $item->getId();
         
         return (($id == 298) or ($id == 302) or ($id == 306) or ($id == 310) or ($id == 314));
     }
-    
+
+    /**
+     * @param Item $item
+     * @return bool
+     */
     public function isChestplate(Item $item)
     {
         $id = $item->getId();
         
         return (($id == 299) or ($id == 303) or ($id == 307) or ($id == 311) or ($id == 315));
     }
-    
+
+    /**
+     * @param Item $item
+     * @return bool
+     */
     public function isLeggings(Item $item)
     {
         $id = $item->getId();
         
         return (($id == 300) or ($id == 304) or ($id == 308) or ($id == 312) or ($id == 316));
     }
-    
+
+    /**
+     * @param Item $item
+     * @return bool
+     */
     public function isBoots(Item $item)
     {
         $id = $item->getId();

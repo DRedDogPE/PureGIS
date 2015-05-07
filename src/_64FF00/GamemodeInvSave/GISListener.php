@@ -26,11 +26,17 @@ class GISListener implements Listener
                                                                                        
     */
 
+    /**
+     * @param GamemodeInvSave $plugin
+     */
     public function __construct(GamemodeInvSave $plugin)
     {
         $this->plugin = $plugin;
     }
-    
+
+    /**
+     * @param PlayerGameModeChangeEvent $event
+     */
     public function onGameModeChange(PlayerGameModeChangeEvent $event)
     {
         $player = $event->getPlayer();
