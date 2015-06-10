@@ -53,60 +53,132 @@ class GamemodeInvSave extends PluginBase
     {
         if(!(file_exists($this->getDataFolder() . "players/" . strtolower($player->getName()) . ".yml")))
         {
-            return new Config($this->getDataFolder() . "players/" . strtolower($player->getName()) . ".yml", Config::YAML, array(
+            return new Config($this->getDataFolder() . "players/" . strtolower($player->getName()) . ".yml", Config::YAML, [
                 "userName" => $player->getName(),
-                "armor" => array(
-                ),
-                "items" => array(
-                )
-            ));
+                "armor" => [
+                ],
+                "items" => [
+                ]
+            ]);
         }
         
-        return new Config($this->getDataFolder() . "players/" . strtolower($player->getName()) . ".yml", Config::YAML, array(
-        ));
+        return new Config($this->getDataFolder() . "players/" . strtolower($player->getName()) . ".yml", Config::YAML, [
+        ]);
     }
 
     /**
-     * @param Item $item
-     * @return bool
+     * @param Player $player
      */
-    public function isHelmet(Item $item)
+    public function loadArmorContents(Player $player)
     {
-        $id = $item->getId();
-        
-        return (($id == 298) or ($id == 302) or ($id == 306) or ($id == 310) or ($id == 314));
+        if($this->configExists($player))
+        {
+            $player->getInventory()->clearAll();
+
+            $config = $this->getPlayerConfig($player);
+
+            $armorList = $config->getNested("armor");
+
+            if(!empty($armorList))
+            {
+                foreach($armorList as $armorId)
+                {
+                    $item = Item::get($armorId, 0, 1);
+
+                    $player->getInventory()->setArmorContents([$item]);
+                }
+
+                $player->getInventory()->sendArmorContents($player);
+
+                $config->setNested("armor", []);
+                $config->save();
+            }
+        }
     }
 
     /**
-     * @param Item $item
-     * @return bool
+     * @param Player $player
      */
-    public function isChestplate(Item $item)
+    public function loadContents(Player $player)
     {
-        $id = $item->getId();
-        
-        return (($id == 299) or ($id == 303) or ($id == 307) or ($id == 311) or ($id == 315));
+        if($this->configExists($player))
+        {
+            $player->getInventory()->clearAll();
+
+            $config = $this->getPlayerConfig($player);
+
+            $itemsList = $config->getNested("items");
+
+            if(!empty($itemsList))
+            {
+                foreach($itemsList as $itemInfo)
+                {
+                    $tmp = explode(":", $itemInfo);
+
+                    $id = (int) $tmp[0];
+                    $damage = (int) $tmp[1];
+                    $count = (int) $tmp[2];
+                    $item = Item::get($id, $damage, $count);
+
+                    $player->getInventory()->addItem($item);
+                }
+
+                $config->setNested("items", []);
+                $config->save();
+            }
+        }
     }
 
     /**
-     * @param Item $item
-     * @return bool
+     * @param Player $player
      */
-    public function isLeggings(Item $item)
+    public function saveArmorContents(Player $player)
     {
-        $id = $item->getId();
-        
-        return (($id == 300) or ($id == 304) or ($id == 308) or ($id == 312) or ($id == 316));
+        $armor = [];
+
+        $armor[] = $player->getInventory()->getHelmet()->getId();
+        $armor[] = $player->getInventory()->getChestplate()->getId();
+        $armor[] = $player->getInventory()->getLeggings()->getId();
+        $armor[] = $player->getInventory()->getBoots()->getId();
+
+        $config = $this->getPlayerConfig($player);
+
+        $config->setNested("armor", $armor);
+        $config->save();
     }
 
     /**
-     * @param Item $item
-     * @return bool
+     * @param Player $player
      */
-    public function isBoots(Item $item)
+    public function saveContents(Player $player)
     {
-        $id = $item->getId();
-        
-        return (($id == 301) or ($id == 305) or ($id == 309) or ($id == 313) or ($id == 317));
+        $items = [];
+
+        $armor["helmet"] = $player->getInventory()->getHelmet()->getId();
+        $armor["chestplate"] = $player->getInventory()->getChestplate()->getId();
+        $armor["leggings"] = $player->getInventory()->getLeggings()->getId();
+        $armor["boots"] = $player->getInventory()->getBoots()->getId();
+
+        foreach($player->getInventory()->getContents() as $slot => $item)
+        {
+            $id = $item->getId();
+            $damage = $item->getDamage();
+            $count = $item->getCount();
+
+            if($slot > $player->getInventory()->getSize())
+            {
+                if($id == $armor["helmet"] or $id == $armor["chestplate"] or $id == $armor["leggings"] or $id == $armor["boots"])
+                {
+                    --$count;
+                }
+            }
+
+            $items[] = "$id:$damage:$count";
+        }
+
+        $config = $this->getPlayerConfig($player);
+
+        $config->setNested("items", $items);
+        $config->save();
     }
 }
