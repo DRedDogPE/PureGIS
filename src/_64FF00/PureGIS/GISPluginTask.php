@@ -1,12 +1,12 @@
 <?php
 
-namespace _64FF00\GamemodeInvSave;
+namespace _64FF00\PureGIS;
 
 use pocketmine\scheduler\PluginTask;
 
 class GISPluginTask extends PluginTask
 {    
-    /* GamemodeInvSave by 64FF00 (xktiverz@gmail.com, @64ff00 for Twitter) */
+    /* PureGIS by 64FF00 (xktiverz@gmail.com, @64ff00 for Twitter) */
 
     /*
           # #    #####  #       ####### #######   ###     ###   
@@ -20,11 +20,11 @@ class GISPluginTask extends PluginTask
     */
 
     /**
-     * @param GamemodeInvSave $plugin
+     * @param PureGIS $plugin
      * @param $funcName
      * @param array $args
      */
-    public function __construct(GamemodeInvSave $plugin, $funcName, array $args)
+    public function __construct(PureGIS $plugin, $funcName, array $args)
     {
         parent::__construct($plugin);
 

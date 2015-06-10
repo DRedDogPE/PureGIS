@@ -1,13 +1,13 @@
 <?php
 
-namespace _64FF00\GamemodeInvSave;
+namespace _64FF00\PureGIS;
 
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerGameModeChangeEvent;
 
 class GISListener implements Listener
 {    
-    /* GamemodeInvSave by 64FF00 (xktiverz@gmail.com, @64ff00 for Twitter) */
+    /* PureGIS by 64FF00 (xktiverz@gmail.com, @64ff00 for Twitter) */
 
     /*
           # #    #####  #       ####### #######   ###     ###   
@@ -21,9 +21,9 @@ class GISListener implements Listener
     */
 
     /**
-     * @param GamemodeInvSave $plugin
+     * @param PureGIS $plugin
      */
-    public function __construct(GamemodeInvSave $plugin)
+    public function __construct(PureGIS $plugin)
     {
         $this->plugin = $plugin;
     }

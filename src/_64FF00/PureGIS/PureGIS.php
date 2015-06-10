@@ -1,6 +1,6 @@
 <?php
 
-namespace _64FF00\GamemodeInvSave;
+namespace _64FF00\PureGIS;
 
 use pocketmine\item\Item;
 
@@ -10,9 +10,9 @@ use pocketmine\Player;
 
 use pocketmine\utils\Config;
 
-class GamemodeInvSave extends PluginBase
+class PureGIS extends PluginBase
 {  
-    /* GamemodeInvSave by 64FF00 (xktiverz@gmail.com, @64ff00 for Twitter) */
+    /* PureGIS by 64FF00 (xktiverz@gmail.com, @64ff00 for Twitter) */
 
     /*
           # #    #####  #       ####### #######   ###     ###   
