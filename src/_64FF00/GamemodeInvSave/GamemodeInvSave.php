@@ -154,10 +154,10 @@ class GamemodeInvSave extends PluginBase
     {
         $items = [];
 
-        $armor["helmet"] = $player->getInventory()->getHelmet()->getId();
-        $armor["chestplate"] = $player->getInventory()->getChestplate()->getId();
-        $armor["leggings"] = $player->getInventory()->getLeggings()->getId();
-        $armor["boots"] = $player->getInventory()->getBoots()->getId();
+        $helmetId = $player->getInventory()->getHelmet()->getId();
+        $chestplateId = $player->getInventory()->getChestplate()->getId();
+        $leggingsId = $player->getInventory()->getLeggings()->getId();
+        $bootsId = $player->getInventory()->getBoots()->getId();
 
         foreach($player->getInventory()->getContents() as $slot => $item)
         {
@@ -167,7 +167,7 @@ class GamemodeInvSave extends PluginBase
 
             if($slot > $player->getInventory()->getSize())
             {
-                if($id == $armor["helmet"] or $id == $armor["chestplate"] or $id == $armor["leggings"] or $id == $armor["boots"])
+                if($id == $helmetId or $id == $chestplateId or $id == $leggingsId or $id == $bootsId)
                 {
                     --$count;
                 }
