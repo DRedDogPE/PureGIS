@@ -4,9 +4,13 @@ namespace _64FF00\PureGIS;
 
 use pocketmine\item\Item;
 
+use pocketmine\Server;
+
 use pocketmine\plugin\PluginBase;
 
 use pocketmine\Player;
+
+use pocketmine\level\Level;
 
 use pocketmine\utils\Config;
 
@@ -27,8 +31,11 @@ class PureGIS extends PluginBase
 
     public function onEnable()
     {
-        @mkdir($this->getDataFolder() . "players/", 0777, true);
-        
+		foreach ($this->getServer()->getLevels() as $world) {
+			if ($world instanceof Level) $world = $world->getName();
+			@mkdir($this->getDataFolder() . $world . "/players/", 0777, true);
+			$this->getLogger()->info(TextFormat::GREEN . $world . "loaded." );
+        }
         $this->getServer()->getPluginManager()->registerEvents(new GISListener($this), $this);
     }
     
@@ -40,20 +47,20 @@ class PureGIS extends PluginBase
      * @param Player $player
      * @return bool
      */
-    public function configExists(Player $player)
+    public function configExists(Player $player, $world)
     {
-        return file_exists($this->getDataFolder() . "players/" . strtolower($player->getName()) . ".yml");
+        return file_exists($this->getDataFolder() . $world . "/players/" . strtolower($player->getName()) . ".yml");
     }
 
     /**
      * @param Player $player
      * @return Config
      */
-    public function getPlayerConfig(Player $player)
+    public function getPlayerConfig(Player $player, $world)
     {
-        if(!(file_exists($this->getDataFolder() . "players/" . strtolower($player->getName()) . ".yml")))
+        if(!(file_exists($this->getDataFolder() . $world . "/players/" . strtolower($player->getName()) . ".yml")))
         {
-            return new Config($this->getDataFolder() . "players/" . strtolower($player->getName()) . ".yml", Config::YAML, [
+            return new Config($this->getDataFolder() . $world . "/players/" . strtolower($player->getName()) . ".yml", Config::YAML, [
                 "userName" => $player->getName(),
                 "armor" => [
                 ],
@@ -62,7 +69,7 @@ class PureGIS extends PluginBase
             ]);
         }
         
-        return new Config($this->getDataFolder() . "players/" . strtolower($player->getName()) . ".yml", Config::YAML, [
+        return new Config($this->getDataFolder() . $world . "/players/" . strtolower($player->getName()) . ".yml", Config::YAML, [
         ]);
     }
 
@@ -74,8 +81,10 @@ class PureGIS extends PluginBase
         if($this->configExists($player))
         {
             $player->getInventory()->clearAll();
+			
+			$world = $player->getLevel()->getName();
 
-            $config = $this->getPlayerConfig($player);
+            $config = $this->getPlayerConfig($player, $world);
 
             $armorList = $config->getNested("armor");
 
@@ -105,7 +114,9 @@ class PureGIS extends PluginBase
         {
             $player->getInventory()->clearAll();
 
-            $config = $this->getPlayerConfig($player);
+			$world = $player->getLevel()->getName();
+
+            $config = $this->getPlayerConfig($player, $world);
 
             $itemsList = $config->getNested("items");
 
@@ -141,7 +152,9 @@ class PureGIS extends PluginBase
         $armor[] = $player->getInventory()->getLeggings()->getId();
         $armor[] = $player->getInventory()->getBoots()->getId();
 
-        $config = $this->getPlayerConfig($player);
+		$world = $player->getLevel()->getName();
+
+		$config = $this->getPlayerConfig($player, $world);
 
         $config->setNested("armor", $armor);
         $config->save();
@@ -176,7 +189,9 @@ class PureGIS extends PluginBase
             $items[] = "$id:$damage:$count";
         }
 
-        $config = $this->getPlayerConfig($player);
+		$world = $player->getLevel()->getName();
+
+		$config = $this->getPlayerConfig($player, $world);
 
         $config->setNested("items", $items);
         $config->save();
